@@ -1,17 +1,36 @@
 #include <Servo.h>
 
 class MiServo : public Servo {
+  private: 
+    unsigned long last_time = 0;
+    int angle_no_linear = 5;
+    int velocity_slow = 150;
+
+    bool motion_in_progress = false;
+    bool direction = true;
+    int slow_start_angle = 0;
+    int current_angle = 0;
+
   public:
-    // Función adicional para hacer algo específico
-  
-    void NonlinearMotion(int angle, int velocity_slow) {
-        int angle_no_linear = 10;
-        int current_angle = read();
-        int slow_start_angle = max(angle_no_linear - angle, angle - angle_no_linear);
-        
+    void NonlinearMotion(int angle) {
+        current_angle = read();
+        if (current_angle != angle) {
+          direction = true ? current_angle < angle : false;
+          if (direction){
+            slow_start_angle = max(current_angle, angle - angle_no_linear);
+          }
+          else {
+            slow_start_angle = min(current_angle, angle + angle_no_linear);
+          }
+          motion_in_progress = true;
+        }
+        else {
+          return;
+        }
+
         write(slow_start_angle);
 
-        if (current_angle < slow_start_angle) {
+        if (direction) {
           for (int i = slow_start_angle; i <= angle; i++) {
             write(i);
             delay(velocity_slow); 
@@ -24,6 +43,13 @@ class MiServo : public Servo {
           }
         }
       }
+    
+    void update() {
+      if (millis() - last_time > 1000) {
+        last_time = millis();
+        Serial.println("Hola");
+      }
+    }
 
     void Origin(){
       write(0);
@@ -46,8 +72,8 @@ void setup() {
   miServo1.Midle();
   miServo2.Midle();
   delay(3000);
-  miServo1.NonlinearMotion(180, 200);
-  miServo2.NonlinearMotion(0, 200);
+  miServo1.NonlinearMotion(50);
+  miServo2.NonlinearMotion(130);
 }
 
 void loop() {
