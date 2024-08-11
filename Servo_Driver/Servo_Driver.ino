@@ -80,27 +80,41 @@ MiServo miServo1;
 MiServo miServo2;
 MiServo miServo3;
 
+MiServo servos[3] = {miServo1, miServo2, miServo3};
+int connections[3] = {9, 10, 11};
+
 void setup() {
   Serial.begin(9600);
-  miServo1.init(1, 10);
-  miServo2.init(2, 11);
-  miServo3.init(3, 9);
-  miServo1.Origin();
-  miServo2.Origin();
-  miServo3.Origin();
+  for (int i = 0; i <= 3; i++) {
+    servos[i].init(i, connections[i]);
+    servos[i].Origin();
+  }
   delay(3000);
-  miServo1.Midle();
-  miServo2.Midle();
-  delay(3000);
-  miServo1.NonlinearMotion(25);
-  miServo2.NonlinearMotion(95);
-  miServo3.NonlinearMotion(180);
-  Serial.print(miServo3.getId());
 }
 
 void loop() {
-  // Tu código aquí
-  miServo1.update();
-  miServo2.update();
-  miServo3.update();
+  // update servos
+  for (int i = 0; i <= 3; i++) {
+    servos[i].update();
+  }
+  serialEvent();
 }
+
+void serialEvent() {
+  while (Serial.available()) {
+    String input = Serial.readStringUntil('\n');
+    int servoIndex = input.substring(0, 1).toInt(); 
+    String servoMode = input.substring(1, 3); // Obtener el modo del servo (NL: Movimiento no lineal, LI: Movimiento lineal)
+    int servoValue = input.substring(3).toInt();  
+
+    Serial.println("Servo: "+String(servoIndex)+" Mode: "+servoMode+" Value: "+String(servoValue)+"\n");
+
+    if (servoMode == "NL") {
+      servos[servoIndex].NonlinearMotion(servoValue);
+    } else if (servoMode == "LI") {
+      servos[servoIndex].write(servoValue);
+    }
+  }
+}
+
+
