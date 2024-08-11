@@ -11,8 +11,18 @@ class MiServo : public Servo {
     int slow_start_angle = 0;
     int current_angle = 0;
     int end_angle = 0;
+    int id_servo = 0;
 
   public:
+    void init (int id, int pin) {
+      id_servo = id;
+      attach(pin);
+    }
+
+    int getId() {
+      return id_servo;
+    }
+
     void NonlinearMotion(int angle) {
         current_angle = read();
         end_angle = angle;
@@ -71,9 +81,10 @@ MiServo miServo2;
 MiServo miServo3;
 
 void setup() {
-  miServo1.attach(10);
-  miServo2.attach(11);
-  miServo3.attach(9);
+  Serial.begin(9600);
+  miServo1.init(1, 10);
+  miServo2.init(2, 11);
+  miServo3.init(3, 9);
   miServo1.Origin();
   miServo2.Origin();
   miServo3.Origin();
@@ -84,6 +95,7 @@ void setup() {
   miServo1.NonlinearMotion(25);
   miServo2.NonlinearMotion(95);
   miServo3.NonlinearMotion(180);
+  Serial.print(miServo3.getId());
 }
 
 void loop() {
