@@ -17,7 +17,7 @@ class MiServo : public Servo {
         current_angle = read();
         end_angle = angle;
         if (current_angle != end_angle) {
-          direction = true ? current_angle < end_angle : false;
+          direction = current_angle < end_angle;
           if (direction){
             slow_start_angle = max(current_angle, end_angle - angle_no_linear);
           }
@@ -41,23 +41,20 @@ class MiServo : public Servo {
         if (direction) {
           if (current_angle < end_angle) {
             current_angle++;
-            write(current_angle);
           }
           else {
             motion_in_progress = false;
-            Serial.println("motion finished");
           }
         }
         else {
           if (current_angle > end_angle) {
             current_angle--;
-            write(current_angle);
           }
           else {
             motion_in_progress = false;
-            Serial.println("motion inverse finished");
           }
         }
+        write(current_angle);
       }
     }
 
@@ -74,7 +71,6 @@ MiServo miServo2;
 MiServo miServo3;
 
 void setup() {
-  Serial.begin(9600);
   miServo1.attach(10);
   miServo2.attach(11);
   miServo3.attach(9);
