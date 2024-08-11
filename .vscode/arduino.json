@@ -1,0 +1,6 @@
+{
+    "port": "/dev/ttyS0",
+    "configuration": "cpu=atmega328old",
+    "board": "arduino:avr:nano",
+    "sketch": "Servo_Driver/Servo_Driver.ino"
+}
